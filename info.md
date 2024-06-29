@@ -50,7 +50,34 @@
 - Interface and cli app struct (ll)
 
 
+# Blockers solved
+
+- string matching fuzzy algo
+    - percentage similarity didn't work as the difference could be other than time
+    - went with regular expression sorting - pretty good results
+    - have to tweek it according to loki api response logs
+
+- so much time
+    - used llama.cpp instead of transformers (but limitted fucntionalities like rag)
+    - so migrated to ollama that uses llama.cpp behind the scene and makes up chatgpt like api
+    - generation speed fixed
+
+- irrelevant outcomes
+    - seems like embedding was done wrong like irrelevant chunks
+    - fixed by limitting max and min chunk size
+
+- retreivel of docs from vector store is done by similarity_search
+    - this is good for text based search and faster results but
+    - but similarity search isn't much efficient on retrieving logs with natural lang
+    - elastic search may do the thing but requires an instance
+
+- need for keyword in the query - related to above blocker
+    - turns out to be, using only keyword search
+    - have to do sematic search
+
 # Doing
 
 - Markdown doesn't seem to work, have to check with custom
 - The bottlenect slow down seem to happen in retreival part, check that
+
+
