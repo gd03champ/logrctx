@@ -14,4 +14,8 @@ setup(
             "logrctx=logrctx.main:app",
         ],
     },
+    include_package_data=True,
+    package_data={
+        "": ["*.py"],
+    },
 )
