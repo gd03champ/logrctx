@@ -7,8 +7,8 @@ from rich.text import Text
 import time
 import os
 
-from utils.string_matching import reduce as reduce_utility
-from utils.rag import main as rag_chat_init
+from logrctx.utils.string_matching import reduce as reduce_utility
+from logrctx.utils.rag import main as rag_chat_init
 
 app = typer.Typer()
 console = Console()
