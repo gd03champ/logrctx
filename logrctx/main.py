@@ -55,7 +55,7 @@ def rag():
     # RAG chatbot
     rag_chat_init(
         dir_path=f"{home_dir}/.logrctx/logs/",
-        filename=f"{home_dir}reduced_raw.log"
+        filename=f"reduced_raw.log"
     )
 
 ## service management
