@@ -8,10 +8,12 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.callbacks.manager import CallbackManager
 
+
 from rich.console import Console
 from rich.panel import Panel
 from rich.markdown import Markdown
-from rich.prompt import Prompt
+from rich.prompt import Prompt, Confirm
+from rich.text import Text
 
 
 # Initialize the console for rich output
@@ -38,7 +40,7 @@ def create_vector_store(docs, embedding_model="nomic-embed-text"):
     try:
         with console.status("[cyan]Creating vector store..."):
             embeddings = OllamaEmbeddings(model=embedding_model)
-            text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+            text_splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=150)
             split_documents = text_splitter.split_documents(docs)
             vector_store = FAISS.from_documents(split_documents, embeddings)
             return vector_store
@@ -86,6 +88,10 @@ def custom_retrieval_chain(vector_store, docs_chain, query):
         for doc in docs:
             console.print(Panel.fit(f"[cyan]{doc.metadata['source']}[/cyan]\n{doc.page_content}"))
     
+    assuring = Confirm.ask("[bold green]Analyse this context with logrcts ai ?[/bold green]")
+    if not assuring:
+        return "# Skipped ai context analysis"
+
     console.print("[cyan]Generating response...")
     response = docs_chain.invoke({"context": docs, "input": query})
     return response
@@ -118,7 +124,7 @@ def main(dir_path, filename):
         response = custom_retrieval_chain(vector_store, docs_chain, query)
         console.print("\n")
         console.print(Panel.fit("[bold green] logrctx ai 🧠 [/bold green]"))
-        console.print(Panel.fit(Markdown(f"{response}")))
+        console.print(Panel.fit((Markdown(f"{response}"))))
 
 if __name__ == "__main__":
     dir_path = "../logs"
