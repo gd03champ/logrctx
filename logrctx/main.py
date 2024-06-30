@@ -25,7 +25,8 @@ def loki(support: str = None):
     with console.status("Retrieving logs..."):
         time.sleep(1)
         #get_logs(support)
-    console.print("Logs retrieved successfully! Stored to logs/raw.log", style="bold green")
+    os.system("touch ~/.logrctx/logs/raw.log")
+    console.print("Logs retrieved successfully! Stored to ~/.logrctx/logs/raw.log", style="bold green")
 
 ## reduce logs
 def reduce():
@@ -33,25 +34,25 @@ def reduce():
     with console.status("Reducing logs..."):
         time.sleep(0)
         reduce_utility(
-            input_file = 'logs/raw.log',
-            output_file = 'logs/reduced_raw.log'
+            input_file = '~/.logrctx/logs/raw.log',
+            output_file = '~/.logrctx/logs/reduced_raw.log'
             )
-    console.print("Logs reduced successfully! Stored to logs/reduced_raw.log", style="bold green")
+    console.print("Logs reduced successfully! Stored to ~/.logrctx/logs/reduced_raw.log", style="bold green")
 
     to_view = Confirm.ask("Do you want to view the reduced logs?")
     if to_view:
         # load logs from file
-        syntax = Syntax.from_path("logs/reduced_raw.log", theme="monokai", line_numbers=True, word_wrap=True)
+        syntax = Syntax.from_path("~/.logrctx/logs/reduced_raw.log", theme="monokai", line_numbers=True, word_wrap=True)
         print("\n")
         with console.pager():
             console.print(Panel.fit(syntax))
-        console.print("You can view logs at [bold]logs/reduced_raw.log[/bold]", style="bold yellow")
+        console.print("You can view logs at [bold]~/.logrctx/logs/reduced_raw.log[/bold]", style="bold yellow")
 
 ## rag chat
 def rag():
     # RAG chatbot
     rag_chat_init(
-        dir_path="logs",
+        dir_path="~/.logrctx/logs/",
         filename="reduced_raw.log"
     )
 
