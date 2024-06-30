@@ -25,6 +25,11 @@ console = Console()
 def load_logs(dir_path, filename):
     """Load log files from the specified directory."""
     try:
+        cache_dir = f"{home_dir}/.logrctx/cache"
+        if os.path.exists(cache_dir):
+            console.print("[yellow]Cached vector db found...")
+            return
+
         loader = DirectoryLoader(
             dir_path,
             glob=filename,
