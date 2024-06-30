@@ -32,6 +32,12 @@ def loki(support: str = None):
 
 ## reduce logs
 def reduce():
+
+    with console.status("Clearing cache..."):
+    # check if cache directory exists and delete
+        if os.path.exists(f"{home_dir}/.logrctx/cache"):
+            os.system(f"rm -rf {home_dir}/.logrctx/cache")
+
     # string matching reduce
     with console.status("Reducing logs..."):
         time.sleep(0)

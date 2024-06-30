@@ -1,3 +1,5 @@
+import os
+import pickle
 from langchain_community.llms import Ollama
 from langchain_community.document_loaders import DirectoryLoader
 from langchain_community.embeddings import OllamaEmbeddings
@@ -8,13 +10,14 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.callbacks.manager import CallbackManager
 
-
 from rich.console import Console
 from rich.panel import Panel
 from rich.markdown import Markdown
 from rich.prompt import Prompt, Confirm
-from rich.text import Text
 
+from concurrent.futures import ThreadPoolExecutor
+
+home_dir = os.path.expanduser('~')
 
 # Initialize the console for rich output
 console = Console()
@@ -38,12 +41,28 @@ def load_logs(dir_path, filename):
 def create_vector_store(docs, embedding_model="nomic-embed-text"):
     """Create a vector store from documents using the specified embedding model."""
     try:
+        # create cache directory if not exists
+        cache_dir = f"{home_dir}/.logrctx/cache"
+        if not os.path.exists(cache_dir):
+            os.makedirs(cache_dir)
+
+        cache_path = f"{home_dir}/.logrctx/cache/vector_store_cache.pkl"
+        if os.path.exists(cache_path):
+            with open(cache_path, 'rb') as f:
+                vector_store = pickle.load(f)
+            console.print("[green]Loaded vector store from cache.")
+            return vector_store
+
         with console.status("[cyan]Creating vector store..."):
             embeddings = OllamaEmbeddings(model=embedding_model)
             text_splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=150)
             split_documents = text_splitter.split_documents(docs)
             vector_store = FAISS.from_documents(split_documents, embeddings)
-            return vector_store
+
+        with open(cache_path, 'wb') as f:
+            pickle.dump(vector_store, f)
+        console.print("[green]Vector store created and cached.")
+        return vector_store
     except Exception as e:
         console.print(f"[red]Error creating vector store: {e}")
         return None
@@ -61,7 +80,7 @@ def construct_prompt():
     """Construct the chat prompt template."""
     prompt = ChatPromptTemplate.from_template(
         """
-        You are in an intelligent RAG system named logrctx for log analysis and given some extracted parts from logs as context through RAG system along with a question to answer.
+        You are an intelligent RAG system named logrctx for log analysis and given some extracted parts from logs as context through RAG system along with a question to answer.
         If you don't know the answer, just say "I don't know." Don't try to make up an answer.
 
         Don't provide any information that is not directly relevant to the question. Like debugging information, reasoning, recommendation, or any extra context unless asked.
@@ -88,9 +107,9 @@ def custom_retrieval_chain(vector_store, docs_chain, query):
         for doc in docs:
             console.print(Panel.fit(f"[cyan]{doc.metadata['source']}[/cyan]\n{doc.page_content}"))
     
-    assuring = Confirm.ask("[bold green]Analyse this context with logrcts ai ?[/bold green]")
+    assuring = Confirm.ask("[bold green]Analyze this context with logrctx ai?[/bold green]")
     if not assuring:
-        return "# Skipped ai context analysis"
+        return "# Skipped AI context analysis"
 
     console.print("[cyan]Generating response...")
     response = docs_chain.invoke({"context": docs, "input": query})
@@ -123,10 +142,11 @@ def main(dir_path, filename):
 
         response = custom_retrieval_chain(vector_store, docs_chain, query)
         console.print("\n")
-        console.print(Panel.fit("[bold green] logrctx ai 🧠 [/bold green]"))
+        console.print(Panel.fit("[bold green] logrctx AI 🧠 [/bold green]"))
         console.print(Panel.fit((Markdown(f"{response}"))))
 
 if __name__ == "__main__":
-    dir_path = "../logs"
-    filename = "reduced_sample.log"
+    home_dir = os.path.expanduser('~')
+    dir_path = f"{home_dir}/.logrctx/logs/"
+    filename = f"reduced_raw.log"
     main(dir_path, filename)

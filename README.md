@@ -75,131 +75,22 @@
     - turns out to be, using only keyword search
     - have to do sematic search
 
+- vector db created everytime casuing time
+    - caching system created
+    - created new cache for every new reduce
+
 # Doing
 
 - Markdown doesn't seem to work, have to check with custom
 - The bottlenect slow down seem to happen in retreival part, check that
-
-
+    - No, it's in creating vector db (solved by caching)
+    - and in starting generation (trying to speedup using mutlithreading)
 
 
 
 
 ---
 
-
-# Without flat
-
-Prompt: bring up any anamolies found in the logs
-Context mapped successfully.
-Retrieved docs 👇
-╭─────────────────────────────────────────────────────────────────────────────────────────╮
-│ logs/reduced_raw.log                                                                    │
-│ Dec 10 07:13:43 LabSZ sshd[24227]: Failed password for root from 5.36.59.76 port 42393  │
-│ ssh2                                                                                    │
-│                                                                                         │
-│ Dec 10 07:13:56 LabSZ sshd[24227]: message repeated 5 times: [ Failed password for root │
-│ from 5.36.59.76 port 42393 ssh2]                                                        │
-│                                                                                         │
-│ Dec 10 07:13:56 LabSZ sshd[24227]: Disconnecting: Too many authentication failures for  │
-│ root                                                                                    │
-│                                                                                         │
-│ Dec 10 08:39:59 LabSZ sshd[24408]: Disconnecting: Too many authentication failures for  │
-│ root                                                                                    │
-│                                                                                         │
-│ Dec 10 07:13:56 LabSZ sshd[24227]: PAM 5 more authentication failures; logname= uid=0   │
-│ euid=0 tty=ssh ruser= rhost=5.36.59.76.dynamic-dsl-ip.omantel.net.om  user=root         │
-│                                                                                         │
-│ Dec 10 07:13:56 LabSZ sshd[24227]: PAM service(sshd) ignoring max retries; 6 > 3        │
-│                                                                                         │
-│ Dec 10 10:14:13 LabSZ sshd[24833]: PAM service(sshd) ignoring max retries; 6 > 3        │
-╰─────────────────────────────────────────────────────────────────────────────────────────╯
-╭─────────────────────────────────────────────────────────────────────────────────────────╮
-│ logs/reduced_raw.log                                                                    │
-│ Dec 10 08:25:22 LabSZ sshd[24369]: PAM 4 more authentication failures; logname= uid=0   │
-│ euid=0 tty=ssh ruser= rhost=5.188.10.180                                                │
-│                                                                                         │
-│ Dec 10 09:11:41 LabSZ sshd[24437]: PAM 4 more authentication failures; logname= uid=0   │
-│ euid=0 tty=ssh ruser= rhost=185.190.58.151                                              │
-│                                                                                         │
-│ Dec 10 08:25:22 LabSZ sshd[24369]: PAM service(sshd) ignoring max retries; 5 > 3        │
-│                                                                                         │
-│ Dec 10 09:11:41 LabSZ sshd[24437]: PAM service(sshd) ignoring max retries; 5 > 3        │
-│                                                                                         │
-│ Dec 10 08:25:28 LabSZ sshd[24371]: Failed password for invalid user admin from          │
-│ 5.188.10.180 port 59647 ssh2                                                            │
-│                                                                                         │
-│ Dec 10 08:25:41 LabSZ sshd[24371]: Failed password for invalid user admin from          │
-│ 5.188.10.180 port 59647 ssh2                                                            │
-│                                                                                         │
-│ Dec 10 08:25:50 LabSZ sshd[24373]: Failed password for invalid user admin from          │
-│ 5.188.10.180 port 56345 ssh2                                                            │
-╰─────────────────────────────────────────────────────────────────────────────────────────╯
-╭─────────────────────────────────────────────────────────────────────────────────────────╮
-│ logs/reduced_raw.log                                                                    │
-│ Dec 10 09:11:51 LabSZ sshd[24460]: pam_unix(sshd:auth): authentication failure;         │
-│ logname= uid=0 euid=0 tty=ssh ruser= rhost=103.99.0.122  user=sshd                      │
-│                                                                                         │
-│ Dec 10 11:04:21 LabSZ sshd[25505]: pam_unix(sshd:auth): authentication failure;         │
-│ logname= uid=0 euid=0 tty=ssh ruser= rhost=103.99.0.122  user=sshd                      │
-│                                                                                         │
-│ Dec 10 09:11:52 LabSZ sshd[24460]: Failed password for sshd from 103.99.0.122 port      │
-│ 51359 ssh2                                                                              │
-│                                                                                         │
-│ Dec 10 09:11:55 LabSZ sshd[24462]: Failed password for invalid user admin from          │
-│ 103.99.0.122 port 54739 ssh2                                                            │
-│                                                                                         │
-│ Dec 10 09:11:56 LabSZ sshd[24464]: Invalid user cisco from 103.99.0.122                 │
-│                                                                                         │
-│ Dec 10 11:04:30 LabSZ sshd[25521]: Invalid user cisco from 103.99.0.122                 │
-│                                                                                         │
-│ Dec 10 09:11:56 LabSZ sshd[24464]: input_userauth_request: invalid user cisco           │
-╰─────────────────────────────────────────────────────────────────────────────────────────╯
-╭─────────────────────────────────────────────────────────────────────────────────────────╮
-│ logs/reduced_raw.log                                                                    │
-│ Dec 10 08:39:49 LabSZ sshd[24408]: Failed password for root from 106.5.5.195 port 50719 │
-│ ssh2                                                                                    │
-│                                                                                         │
-│ Dec 10 08:39:59 LabSZ sshd[24408]: message repeated 5 times: [ Failed password for root │
-│ from 106.5.5.195 port 50719 ssh2]                                                       │
-│                                                                                         │
-│ Dec 10 08:39:59 LabSZ sshd[24408]: PAM 5 more authentication failures; logname= uid=0   │
-│ euid=0 tty=ssh ruser= rhost=106.5.5.195  user=root                                      │
-│                                                                                         │
-│ Dec 10 08:44:20 LabSZ sshd[24410]: Invalid user matlab from 52.80.34.196                │
-│                                                                                         │
-│ Dec 10 10:21:01 LabSZ sshd[24841]: Invalid user matlab from 52.80.34.196                │
-│                                                                                         │
-│ Dec 10 08:44:20 LabSZ sshd[24410]: input_userauth_request: invalid user matlab          │
-│                                                                                         │
-│ Dec 10 10:21:01 LabSZ sshd[24841]: input_userauth_request: invalid user matlab          │
-│                                                                                         │
-│ Dec 10 08:44:27 LabSZ sshd[24410]: Failed password for invalid user matlab from         │
-│ 52.80.34.196 port 46199 ssh2                                                            │
-╰─────────────────────────────────────────────────────────────────────────────────────────╯
-╭─────────────────────────────────────────────────────────────────────────────────────────╮
-│ logs/reduced_raw.log                                                                    │
-│ Dec 10 11:04:00 LabSZ sshd[25472]: Failed password for root from 103.99.0.122 port      │
-│ 63012 ssh2                                                                              │
-│                                                                                         │
-│ Dec 10 11:04:02 LabSZ sshd[25476]: Failed password for root from 183.62.140.253 port    │
-│ 56779 ssh2                                                                              │
-│                                                                                         │
-│ Dec 10 11:04:04 LabSZ sshd[25478]: Failed password for invalid user anonymous from      │
-│ 103.99.0.122 port 63514 ssh2                                                            │
-│                                                                                         │
-│ Dec 10 11:04:04 LabSZ sshd[25480]: Failed password for root from 183.62.140.253 port    │
-│ 57223 ssh2                                                                              │
-│                                                                                         │
-│ Dec 10 11:04:06 LabSZ sshd[25482]: Failed password for root from 183.62.140.253 port    │
-│ 57631 ssh2                                                                              │
-│                                                                                         │
-│ Dec 10 11:04:08 LabSZ sshd[25487]: Failed password for root from 183.62.140.253 port    │
-│ 57916 ssh2                                                                              │
-│                                                                                         │
-│ Dec 10 11:04:10 LabSZ sshd[25484]: Failed password for invalid user admin from          │
-│ 103.99.0.122 port 64031 ssh2                                                            │
-╰─────────────────────────────────────────────────────────────────────────────────────────╯
 Generating response...
 
 ╭─────────────────╮
