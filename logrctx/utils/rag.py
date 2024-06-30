@@ -29,7 +29,7 @@ def load_logs(dir_path, filename):
         cache_dir = f"{home_dir}/.logrctx/cache"
         if os.path.exists(cache_dir):
             console.print("[yellow]Cached vector db found...")
-            return []
+            return "cache detected"
 
         loader = DirectoryLoader(
             dir_path,
