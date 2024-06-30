@@ -13,6 +13,8 @@ from logrctx.utils.rag import main as rag_chat_init
 app = typer.Typer()
 console = Console()
 
+home_dir = os.path.expanduser('~')
+
 # main utility functions
 
 ## loki logs retrieval
@@ -25,8 +27,8 @@ def loki(support: str = None):
     with console.status("Retrieving logs..."):
         time.sleep(1)
         #get_logs(support)
-    os.system("touch ~/.logrctx/logs/raw.log")
-    console.print("Logs retrieved successfully! Stored to ~/.logrctx/logs/raw.log", style="bold green")
+    os.system(f"touch {home_dir}/.logrctx/logs/raw.log")
+    console.print(f"Logs retrieved successfully! Stored to [bold]{home_dir}/.logrctx/logs/raw.log[/bold]", style="bold green")
 
 ## reduce logs
 def reduce():
@@ -34,26 +36,26 @@ def reduce():
     with console.status("Reducing logs..."):
         time.sleep(0)
         reduce_utility(
-            input_file = '~/.logrctx/logs/raw.log',
-            output_file = '~/.logrctx/logs/reduced_raw.log'
+            input_file = f'{home_dir}/.logrctx/logs/raw.log',
+            output_file = f'{home_dir}/.logrctx/logs/reduced_raw.log'
             )
-    console.print("Logs reduced successfully! Stored to ~/.logrctx/logs/reduced_raw.log", style="bold green")
+    console.print(f"Logs reduced successfully! Stored to {home_dir}/.logrctx/logs/reduced_raw.log", style="bold green")
 
     to_view = Confirm.ask("Do you want to view the reduced logs?")
     if to_view:
         # load logs from file
-        syntax = Syntax.from_path("~/.logrctx/logs/reduced_raw.log", theme="monokai", line_numbers=True, word_wrap=True)
+        syntax = Syntax.from_path(f"{home_dir}/.logrctx/logs/reduced_raw.log", theme="monokai", line_numbers=True, word_wrap=True)
         print("\n")
         with console.pager():
             console.print(Panel.fit(syntax))
-        console.print("You can view logs at [bold]~/.logrctx/logs/reduced_raw.log[/bold]", style="bold yellow")
+        console.print(f"You can view logs at [bold]{home_dir}/.logrctx/logs/reduced_raw.log[/bold]", style="bold yellow")
 
 ## rag chat
 def rag():
     # RAG chatbot
     rag_chat_init(
-        dir_path="~/.logrctx/logs/",
-        filename="reduced_raw.log"
+        dir_path=f"{home_dir}/.logrctx/logs/",
+        filename=f"{home_dir}reduced_raw.log"
     )
 
 ## service management
