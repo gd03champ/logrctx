@@ -64,6 +64,37 @@ def rag():
         filename=f"reduced_raw.log"
     )
 
+## setup ollama
+def setup_ollama():
+
+    ### install ollama service
+    with console.status("Installing ollama service..."):
+        os.system("brew install ollama")
+    console.print("✔️ Ollama service installed!", style="bold green")
+
+    ### start ollama service
+    with console.status("Starting ollama service..."):
+        os.system("brew services start ollama")
+    console.print("✔️ Ollama service started!", style="bold green")
+
+    ### install models
+    with console.status("Downloading embedding models..."):
+        os.system("ollama pull nomic-embed-text:latest")
+    with console.status("Downloading retrieval models..."):
+        os.system("ollama pull phi3:mini")
+    console.print("✔️ Models downloaded successfully!", style="bold green")
+
+    ### print installed models
+    console.print("📦 Installed models:", style="bold yellow")
+    os.system("ollama list")
+
+    ### stop ollama service
+    with console.status("Stopping ollama service..."):
+        os.system("brew services stop ollama")
+
+    console.print("🚀 Ollama setup completed!", style="bold green")
+    
+
 ## service management
 def service(support: str = None):
     try:
@@ -99,6 +130,7 @@ def help():
     console.print("  loki - Retrieve logs from loki", style="bold blue")
     console.print("  reduce - Reduce logs using string matching", style="bold blue")
     console.print("  rag - Chat with RAG AI for log analysis", style="bold blue")
+    console.print("  setup - Setup ollama service", style="bold blue")
     console.print("  service - Manage ollama service", style="bold blue")
     console.print("  init - Initialize logrctx with loki, reduce and rag", style="bold blue")
     console.print("  help - Show help", style="bold blue")
@@ -126,6 +158,12 @@ def root(
         loki(support)
         reduce()
         rag()
+
+    if function == "setup":
+        if support == "ollama":
+            setup_ollama()
+        else:
+            console.print("Please provide valid support for setup", style="bold red")
 
     if function == "service":
         service(support)

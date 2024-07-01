@@ -15,7 +15,6 @@ from rich.panel import Panel
 from rich.markdown import Markdown
 from rich.prompt import Prompt, Confirm
 
-from concurrent.futures import ThreadPoolExecutor
 
 home_dir = os.path.expanduser('~')
 
