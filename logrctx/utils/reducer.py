@@ -80,9 +80,9 @@ def drain_logs(logs):
     return reduced_logs
 
 
-def reduce(operaton, input_file, output_file):
+def reduce(operation, input_file, output_file):
     logs = load_logs(input_file)
-    reduced_logs = reduce_logs(logs) if operagitton == 'reduce' else drain_logs(logs)
+    reduced_logs = reduce_logs(logs) if operation == 'reduce' else drain_logs(logs)
     save_logs(output_file, reduced_logs)
 
 if __name__ == "__main__":
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     console.print("[bold]Reducing logs...[/bold]")
     console.print("")
 
-    reduce("drain", input_file, output_file)
+    reduce("reduce", input_file, output_file)
 
     console.print("")
     console.print("[bold]Logs reduced successfully![/bold]")

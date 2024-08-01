@@ -120,7 +120,7 @@ def construct_prompt():
 def custom_retrieval_chain(vector_store, docs_chain, query):
     """Custom retrieval and generation process."""
     with console.status("[cyan]Retrieving relevant logs..."):
-        docs = vector_store.similarity_search(query, k=1)
+        docs = vector_store.similarity_search(query, k=5)
         console.print("[green]Context mapped successfully.")
 
         console.print("Retrieved docs 👇")
