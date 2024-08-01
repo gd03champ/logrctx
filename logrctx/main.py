@@ -26,7 +26,7 @@ def loki(support: str = None):
     with console.status("Retrieving logs..."):
         time.sleep(1)
         #get_logs(support)
-    os.system(f"cat logs/raw.log > {home_dir}/.logrctx/logs/raw.log")
+    os.system(f"cat {os.path.dirname(os.path.abspath(__file__))}/logs/raw.log > {home_dir}/.logrctx/logs/raw.log")
     console.print(f"Logs retrieved successfully! Stored to [bold]{home_dir}/.logrctx/logs/raw.log[/bold]", style="bold green")
 
 ## reduce logs
@@ -44,7 +44,7 @@ def reduce():
     with console.status("Reducing logs..."):
         time.sleep(0)
         reduce_utility(
-            operation = choice,
+            operaiton = choice,
             input_file = f'{home_dir}/.logrctx/logs/raw.log',
             output_file = f'{home_dir}/.logrctx/logs/reduced_raw.log'
             )
