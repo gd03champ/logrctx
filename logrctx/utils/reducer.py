@@ -82,7 +82,7 @@ def drain_logs(logs):
 
 def reduce(operaton, input_file, output_file):
     logs = load_logs(input_file)
-    reduced_logs = reduce_logs(logs) if operaton == 'reduce' else drain_logs(logs)
+    reduced_logs = reduce_logs(logs) if operagitton == 'reduce' else drain_logs(logs)
     save_logs(output_file, reduced_logs)
 
 if __name__ == "__main__":
