@@ -66,6 +66,9 @@
     - seems like embedding was done wrong like irrelevant chunks
     - fixed by limitting max and min chunk size
 
+- retrieval is little slow
+    - change chroma vector db to FAISS (blazing fast)
+
 - retreivel of docs from vector store is done by similarity_search
     - this is good for text based search and faster results but
     - but similarity search isn't much efficient on retrieving logs with natural lang
@@ -78,6 +81,12 @@
 - vector db created everytime casuing time
     - caching system created
     - created new cache for every new reduce
+
+- context length problem when connect to aws ollama service (unresolved)
+    - works well on local server
+    - either decrease context length or scale up ollama server (or both)
+        - reduce context length and relevancy by decreasing chunk size and increasing k value
+        - increase context length using any summary technology or scalling up server resources
 
 # Doing
 

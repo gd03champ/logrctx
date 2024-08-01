@@ -1,13 +1,12 @@
 import typer
 from rich.console import Console
-from rich.prompt import Confirm
+from rich.prompt import Confirm, Prompt
 from rich.syntax import Syntax
 from rich.panel import Panel
-from rich.text import Text
 import time
 import os
 
-from logrctx.utils.string_matching import reduce as reduce_utility
+from logrctx.utils.reducer import reduce as reduce_utility
 from logrctx.utils.rag import main as rag_chat_init
 
 app = typer.Typer()
@@ -27,11 +26,14 @@ def loki(support: str = None):
     with console.status("Retrieving logs..."):
         time.sleep(1)
         #get_logs(support)
-    os.system(f"touch {home_dir}/.logrctx/logs/raw.log")
+    os.system(f"cat logs/raw.log > {home_dir}/.logrctx/logs/raw.log")
     console.print(f"Logs retrieved successfully! Stored to [bold]{home_dir}/.logrctx/logs/raw.log[/bold]", style="bold green")
 
 ## reduce logs
 def reduce():
+
+    # get user option to reduce or drain logs
+    choice = Prompt.ask("Enter your choice", choices=["reduce", "drain"], default="drain")
 
     with console.status("Clearing cache..."):
     # check if cache directory exists and delete
@@ -42,6 +44,7 @@ def reduce():
     with console.status("Reducing logs..."):
         time.sleep(0)
         reduce_utility(
+            operation = choice,
             input_file = f'{home_dir}/.logrctx/logs/raw.log',
             output_file = f'{home_dir}/.logrctx/logs/reduced_raw.log'
             )

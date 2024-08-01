@@ -15,6 +15,8 @@ from rich.panel import Panel
 from rich.markdown import Markdown
 from rich.prompt import Prompt, Confirm
 
+# Define the AWS hosted Ollama server URL
+aws_ollama_server_url = "http://localhost:11434/"
 
 home_dir = os.path.expanduser('~')
 
@@ -59,7 +61,10 @@ def create_vector_store(docs, embedding_model="nomic-embed-text"):
             return vector_store
 
         with console.status("[cyan]Creating vector store..."):
-            embeddings = OllamaEmbeddings(model=embedding_model)
+            embeddings = OllamaEmbeddings(
+                model=embedding_model,
+                base_url = aws_ollama_server_url
+                )
             text_splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=150)
             split_documents = text_splitter.split_documents(docs)
             vector_store = FAISS.from_documents(split_documents, embeddings)
@@ -75,7 +80,11 @@ def create_vector_store(docs, embedding_model="nomic-embed-text"):
 def setup_llm(callback_manager):
     """Set up the language model with specified callbacks."""
     try:
-        llm = Ollama(model="phi3", callbacks=callback_manager)
+        llm = Ollama(
+            model="phi3:mini", 
+            callbacks=callback_manager,
+            base_url = aws_ollama_server_url
+            )
         return llm
     except Exception as e:
         console.print(f"[red]Error setting up language model: {e}")
@@ -84,30 +93,36 @@ def setup_llm(callback_manager):
 def construct_prompt():
     """Construct the chat prompt template."""
     prompt = ChatPromptTemplate.from_template(
-        """
-        You are an intelligent RAG system named logrctx for log analysis and given some extracted parts from logs as context through RAG system along with a question to answer.
-        If you don't know the answer, just say "I don't know." Don't try to make up an answer.
-
-        Don't provide any information that is not directly relevant to the question. Like debugging information, reasoning, recommendation, or any extra context unless asked.
-        Just provide what's asked from the given context by summarizing the context. Don't demand extra context.
-
-        Prefer to use markdown format wherever possible for visually appealing output and use time from the logs in your response if needed for concise response.
-        Keep the response as short and to the point as possible while not leaving any important information out.
-
-        Use only the following pieces of context to answer the question at the end.
-
-        Context: {context}
-
-        Question: {input}
-        """
-    )
+        '''
+        {context}
+        {input}
+        '''
+        )
+#        """
+#        You are an intelligent RAG system named logrctx for log analysis and given some extracted parts from logs as context through RAG system along with a question to answer.
+#        If you don't know the answer, just say "I don't know." Don't try to make up an answer.
+#
+#        Don't provide any information that is not directly relevant to the question. Like debugging information, reasoning, recommendation, or any extra context unless asked.
+#        Just provide what's asked from the given context by summarizing the context. Don't demand extra context.
+#
+#        Prefer to use markdown format wherever possible for visually appealing output and use time from the logs in your response if needed for concise response.
+#        Keep the response as short and to the point as possible while not leaving any important information out.
+#
+#        Use only the following pieces of context to answer the question at the end.
+#
+#        Context: {context}
+#
+#        Question: {input}
+#        """
+#    )
     return prompt
 
 def custom_retrieval_chain(vector_store, docs_chain, query):
     """Custom retrieval and generation process."""
     with console.status("[cyan]Retrieving relevant logs..."):
-        docs = vector_store.similarity_search(query, k=5)
+        docs = vector_store.similarity_search(query, k=1)
         console.print("[green]Context mapped successfully.")
+
         console.print("Retrieved docs 👇")
         for doc in docs:
             console.print(Panel.fit(f"[cyan]{doc.metadata['source']}[/cyan]\n{doc.page_content}"))
