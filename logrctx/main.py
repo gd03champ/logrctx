@@ -44,7 +44,7 @@ def reduce():
     with console.status("Reducing logs..."):
         time.sleep(0)
         reduce_utility(
-            operaiton = choice,
+            operaton = choice,
             input_file = f'{home_dir}/.logrctx/logs/raw.log',
             output_file = f'{home_dir}/.logrctx/logs/reduced_raw.log'
             )
